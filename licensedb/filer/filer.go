@@ -9,18 +9,12 @@ import (
 	"path/filepath"
 	"strings"
 
+	git "github.com/go-git/go-git/v5"
+	"github.com/go-git/go-git/v5/plumbing"
+	"github.com/go-git/go-git/v5/plumbing/filemode"
+	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/storage/memory"
 	"github.com/pkg/errors"
-	sivafs "gopkg.in/src-d/go-billy-siva.v4"
-	"gopkg.in/src-d/go-billy.v4/memfs"
-	"gopkg.in/src-d/go-billy.v4/osfs"
-	git "gopkg.in/src-d/go-git.v4"
-	"gopkg.in/src-d/go-git.v4/plumbing"
-	"gopkg.in/src-d/go-git.v4/plumbing/cache"
-	"gopkg.in/src-d/go-git.v4/plumbing/filemode"
-	"gopkg.in/src-d/go-git.v4/plumbing/object"
-	"gopkg.in/src-d/go-git.v4/plumbing/storer"
-	"gopkg.in/src-d/go-git.v4/storage/filesystem"
-	"gopkg.in/src-d/go-git.v4/storage/memory"
 )
 
 // File represents a file in the virtual file system: every node is either a regular file
@@ -211,39 +205,6 @@ func (filer *gitFiler) Close() {
 
 func (filer *gitFiler) PathsAreAlwaysSlash() bool {
 	return true
-}
-
-// FromSiva returns a Filer that allows accessing all the files in a Git repository contained in a Siva file.
-// See https://github.com/src-d/go-siva and https://github.com/src-d/go-billy-siva
-func FromSiva(path string) (Filer, error) {
-	localFs := osfs.New(filepath.Dir(path))
-	tmpFs := memfs.New()
-	basePath := filepath.Base(path)
-	fs, err := sivafs.NewFilesystem(localFs, basePath, tmpFs)
-	if err != nil {
-		return nil, errors.Wrapf(err, "unable to create a Siva filesystem from %s", path)
-	}
-	sivaStorage := filesystem.NewStorage(fs, cache.NewObjectLRUDefault())
-	repo, err := git.Open(sivaStorage, tmpFs)
-	if err != nil {
-		return nil, errors.Wrapf(err, "unable to open the Git repository from Siva file %s", path)
-	}
-	refs, err := repo.References()
-	if err != nil {
-		return nil, errors.Wrapf(err, "unable to list Git references from Siva file %s", path)
-	}
-	var head plumbing.ReferenceName
-	err = refs.ForEach(func(ref *plumbing.Reference) error {
-		if strings.HasPrefix(ref.Name().String(), "refs/heads/HEAD/") {
-			head = ref.Name()
-			return storer.ErrStop
-		}
-		return nil
-	})
-	if err != nil {
-		return nil, errors.Wrapf(err, "failed to iterate over references in Siva file %s", path)
-	}
-	return FromGit(repo, head)
 }
 
 type zipNode struct {

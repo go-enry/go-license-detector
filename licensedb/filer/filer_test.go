@@ -1,7 +1,6 @@
 package filer
 
 import (
-	"os"
 	"sort"
 	"testing"
 
@@ -61,16 +60,6 @@ func TestGitFiler(t *testing.T) {
 	assert.Nil(t, err)
 	testFiler(t, filer)
 	filer, err = FromGitURL("test_data/local2.git")
-	assert.Nil(t, filer)
-	assert.NotNil(t, err)
-}
-
-func TestSivaFiler(t *testing.T) {
-	filer, err := FromSiva("test_data/334a82b19a7c893d3807ea52ba35ff2170c296cc.siva")
-	assert.Nil(t, err)
-	testFiler(t, filer)
-	filer, err = FromSiva("test_data/local2.siva")
-	defer os.Remove("test_data/local2.siva")
 	assert.Nil(t, filer)
 	assert.NotNil(t, err)
 }

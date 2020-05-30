@@ -1,6 +1,7 @@
 package licensedb
 
 import (
+	"fmt"
 	"net/url"
 	"os"
 	"sort"
@@ -46,13 +47,16 @@ type Match struct {
 
 func process(arg string) ([]Match, error) {
 	newFiler := filer.FromDirectory
-	fi, err := os.Stat(arg)
-	if err != nil {
+	if _, err := os.Stat(arg); err != nil {
+		if !os.IsNotExist(err) {
+			return nil, err
+		}
+
 		if _, err := url.Parse(arg); err == nil {
 			newFiler = filer.FromGitURL
+		} else {
+			return nil, fmt.Errorf("arg should be a valid path or a URL")
 		}
-	} else if !fi.IsDir() {
-		newFiler = filer.FromSiva
 	}
 
 	resolvedFiler, err := newFiler(arg)
