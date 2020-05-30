@@ -13,7 +13,8 @@ func TestCmdMain(t *testing.T) {
 	buffer := &bytes.Buffer{}
 	detect([]string{"../..", "."}, "json", buffer)
 	var r []licensedb.Result
-	json.Unmarshal(buffer.Bytes(), &r)
+	err := json.Unmarshal(buffer.Bytes(), &r)
+	assert.NoError(t, err)
 	assert.Len(t, r, 2)
 	assert.Equal(t, "../..", r[0].Arg)
 	assert.Equal(t, ".", r[1].Arg)

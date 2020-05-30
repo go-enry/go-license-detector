@@ -23,6 +23,7 @@ func testFiler(t *testing.T, filer Filer) {
 	assert.Nil(t, err)
 	assert.Equal(t, "hello\n", string(content))
 	files, err = filer.ReadDir("two")
+	assert.Nil(t, err)
 	assert.Len(t, files, 1)
 	assert.Equal(t, "three", files[0].Name)
 	assert.False(t, files[0].IsDir)

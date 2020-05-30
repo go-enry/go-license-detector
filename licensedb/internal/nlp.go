@@ -11,12 +11,12 @@ import (
 )
 
 var (
-	licenseMarkReadmeRe = regexp.MustCompile("(?i)(copy(right|ing))|\\(c\\)|©|(licen[cs][ei])|released under")
-	garbageReadmeRe     = regexp.MustCompile("([Cc]opy(right|ing))|\\(c\\)|©")
-	licenseReadmeRe     = regexp.MustCompile("\\s*[Ll]icen[cs]e\\s*")
-	licenseNamePartRe   = regexp.MustCompile("([a-z]+)|([0-9]+)")
-	digitsRe            = regexp.MustCompile("[0-9]+")
-	disabledNamePartsRe = regexp.MustCompile("clause|or|only|deprecated|later")
+	licenseMarkReadmeRe = regexp.MustCompile(`(?i)(copy(right|ing))|\(c\)|©|(licen[cs][ei])|released under`)
+	garbageReadmeRe     = regexp.MustCompile(`([Cc]opy(right|ing))|\(c\)|©`)
+	licenseReadmeRe     = regexp.MustCompile(`\s*[Ll]icen[cs]e\s*`)
+	licenseNamePartRe   = regexp.MustCompile(`([a-z]+)|([0-9]+)`)
+	digitsRe            = regexp.MustCompile(`[0-9]+`)
+	disabledNamePartsRe = regexp.MustCompile(`clause|or|only|deprecated|later`)
 
 	tagger = tag.NewPerceptronTagger()
 )

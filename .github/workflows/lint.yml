@@ -1,7 +1,7 @@
 on: [push, pull_request]
 name: Lint 
 jobs:
-  test:
+  lint:
     runs-on: ubuntu-latest
     steps:
     - name: Checkout code

@@ -12,22 +12,22 @@ import (
 )
 
 var (
-	lineEndingsRe = regexp.MustCompile("\\r\\n?")
+	lineEndingsRe = regexp.MustCompile(`\r\n?`)
 	// 3.1.1 All whitespace should be treated as a single blank space.
-	whitespaceRe         = regexp.MustCompile("[ \\t\\f\\r             　​]+")
-	trailingWhitespaceRe = regexp.MustCompile("(?m)[ \\t\\f\\r             　​]$")
-	licenseHeaderRe      = regexp.MustCompile("(licen[cs]e)\\.?\\n\\n")
-	leadingWhitespaceRe  = regexp.MustCompile("(?m)^(( \\n?)|\\n)")
+	whitespaceRe         = regexp.MustCompile(`[ \t\f\r             　​]+`)
+	trailingWhitespaceRe = regexp.MustCompile(`(?m)[ \t\f\r             　​]$`)
+	licenseHeaderRe      = regexp.MustCompile(`(licen[cs]e)\.?\n\n`)
+	leadingWhitespaceRe  = regexp.MustCompile(`(?m)^(( \n?)|\n)`)
 	// 5.1.2 Hyphens, Dashes  Any hyphen, dash, en dash, em dash, or other variation should be
 	// considered equivalent.
-	punctuationRe = regexp.MustCompile("[-‒–—―⁓⸺⸻~˗‐‑⁃⁻₋−∼⎯⏤─➖𐆑֊﹘﹣－]+")
+	punctuationRe = regexp.MustCompile(`[-‒–—―⁓⸺⸻~˗‐‑⁃⁻₋−∼⎯⏤─➖𐆑֊﹘﹣－]+`)
 	// 5.1.3 Quotes  Any variation of quotations (single, double, curly, etc.) should be considered
 	// equivalent.
-	quotesRe = regexp.MustCompile("[\"'“”‘’„‚«»‹›❛❜❝❞`]+")
+	quotesRe = regexp.MustCompile(`["'“”‘’„‚«»‹›❛❜❝❞\x60]+`)
 	// 7.1.1 Where a line starts with a bullet, number, letter, or some form of a list item
 	// (determined where list item is followed by a space, then the text of the sentence), ignore
 	// the list item for matching purposes.
-	bulletRe = regexp.MustCompile("(?m)^(([-*✱﹡•●⚫⏺🞄∙⋅])|([(\\[{]?\\d+[.)\\]}] ?)|([(\\[{]?[a-z][.)\\]}] ?)|([(\\[{]?i+[.)\\]} ] ?))")
+	bulletRe = regexp.MustCompile(`(?m)^(([-*✱﹡•●⚫⏺🞄∙⋅])|([(\[{]?\d+[.)\]}] ?)|([(\[{]?[a-z][.)\]}] ?)|([(\[{]?i+[.)\]} ] ?))`)
 	// 8.1.1 The words in the following columns are considered equivalent and interchangeable.
 	wordReplacer = strings.NewReplacer(
 		"acknowledgment", "acknowledgement",
@@ -75,17 +75,17 @@ var (
 	)
 
 	// 9.1.1 "©", "(c)", or "Copyright" should be considered equivalent and interchangeable.
-	copyrightRe = regexp.MustCompile("copyright|\\(c\\)")
-	trademarkRe = regexp.MustCompile("trademark(s?)|\\(tm\\)")
+	copyrightRe = regexp.MustCompile(`copyright|\(c\)`)
+	trademarkRe = regexp.MustCompile(`trademark(s?)|\(tm\)`)
 
 	// extra cleanup
-	brokenLinkRe    = regexp.MustCompile("http s ://")
-	urlCleanupRe    = regexp.MustCompile("[<(](http(s?)://[^\\s]+)[)>]")
-	copyrightLineRe = regexp.MustCompile("(?m)^((©.*)|(all rights reserved(\\.)?)|(li[cs]en[cs]e))\n")
-	nonAlphaNumRe   = regexp.MustCompile("[^- \\na-z0-9]")
+	brokenLinkRe    = regexp.MustCompile(`http s ://`)
+	urlCleanupRe    = regexp.MustCompile(`[<(](http(s?)://[^\s]+)[)>]`)
+	copyrightLineRe = regexp.MustCompile(`(?m)^((©.*)|(all rights reserved(\.)?)|(li[cs]en[cs]e))\n`)
+	nonAlphaNumRe   = regexp.MustCompile(`[^- \na-z0-9]`)
 
 	// used in Split()
-	splitRe = regexp.MustCompile("\\n\\s*[^a-zA-Z0-9_,()]{3,}\\s*\\n")
+	splitRe = regexp.MustCompile(`\n\s*[^a-zA-Z0-9_,()]{3,}\s*\n`)
 )
 
 // Strictness represents the aggressiveness of the performed normalization. The bigger the number,
@@ -173,8 +173,8 @@ func Relax(text string) string {
 	buffer := &bytes.Buffer{}
 	writer := transform.NewWriter(
 		buffer, transform.Chain(norm.NFD, runes.Remove(runes.In(unicode.Mn)), norm.NFC))
-	writer.Write([]byte(text))
-	writer.Close()
+	_, _ = writer.Write([]byte(text))
+	_ = writer.Close()
 	text = buffer.String()
 	text = nonAlphaNumRe.ReplaceAllString(text, "")
 	text = leadingWhitespaceRe.ReplaceAllString(text, "")

@@ -11,9 +11,9 @@ import (
 
 var (
 	skipHTMLRe   = regexp.MustCompile(`^(head|script|style|object)$`)
-	htmlHeaderRe = regexp.MustCompile("^h[2-6]$")
-	htmlEntityRe = regexp.MustCompile("&((#\\d+)|([a-zA-Z]+));")
-	marksRe      = regexp.MustCompile("[#$%*/\\\\|><~`=!?.,:;\"'\\])}-]")
+	htmlHeaderRe = regexp.MustCompile(`^h[2-6]$`)
+	htmlEntityRe = regexp.MustCompile(`&((#\\d+)|([a-zA-Z]+));`)
+	marksRe      = regexp.MustCompile(`[#$%*\/\\|><~\x60=!?.,:;\"'\])}-]`)
 )
 
 func parseHTMLEntity(entName []byte) []byte {

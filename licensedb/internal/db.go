@@ -413,8 +413,8 @@ func (db *database) scanForURLs(text string) map[string]bool {
 	urlMatches := index.FindAllIndex(db.urlRe, -1)
 	licenses := map[string]bool{}
 	for _, match := range urlMatches {
-		url := string(byteText[match[0]:match[1]])
-		licenses[db.urls[url]] = true
+		url := byteText[match[0]:match[1]]
+		licenses[db.urls[string(url)]] = true
 	}
 	return licenses
 }
