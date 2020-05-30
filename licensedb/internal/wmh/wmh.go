@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"unsafe"
 
+	"github.com/go-enry/go-license-detector/v4/licensedb/internal/fastlog"
 	"golang.org/x/exp/rand"
 	"gonum.org/v1/gonum/stat/distuv"
-	"gopkg.in/src-d/go-license-detector.v3/licensedb/internal/fastlog"
 )
 
 const maxUint16 = 65535

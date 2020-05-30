@@ -10,8 +10,8 @@ import (
 	"log"
 	"os"
 
+	"github.com/go-enry/go-license-detector/v4/licensedb"
 	"github.com/spf13/pflag"
-	"gopkg.in/src-d/go-license-detector.v3/licensedb"
 )
 
 func main() {

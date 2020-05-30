@@ -4,9 +4,9 @@ import (
 	"errors"
 	paths "path"
 
-	"gopkg.in/src-d/go-license-detector.v3/licensedb/api"
-	"gopkg.in/src-d/go-license-detector.v3/licensedb/filer"
-	"gopkg.in/src-d/go-license-detector.v3/licensedb/internal"
+	"github.com/go-enry/go-license-detector/v4/licensedb/api"
+	"github.com/go-enry/go-license-detector/v4/licensedb/filer"
+	"github.com/go-enry/go-license-detector/v4/licensedb/internal"
 )
 
 var (

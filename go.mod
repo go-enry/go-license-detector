@@ -1,4 +1,4 @@
-module gopkg.in/src-d/go-license-detector.v3
+module github.com/go-enry/go-license-detector/v4
 
 require (
 	github.com/dgryski/go-metro v0.0.0-20180109044635-280f6062b5bc // indirect
@@ -32,4 +32,4 @@ replace (
 	golang.org/x/text v0.3.2 => golang.org/x/text v0.3.0
 )
 
-go 1.13
+go 1.14

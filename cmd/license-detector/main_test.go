@@ -5,8 +5,8 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/go-enry/go-license-detector/v4/licensedb"
 	"github.com/stretchr/testify/assert"
-	"gopkg.in/src-d/go-license-detector.v3/licensedb"
 )
 
 func TestCmdMain(t *testing.T) {
