@@ -1,0 +1,16 @@
+on: [push, pull_request]
+name: Lint 
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Run GolangCI-Lint 
+      uses: golangci/golangci-lint-action@v1
+      with:
+        version: v1.27
+
+    - name: Test
+      run: go test ./...
