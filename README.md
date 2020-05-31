@@ -1,4 +1,4 @@
-# go-license-detector [![GoDoc](https://godoc.org/github.com/go-enry/go-license-detector/v4?status.svg)](http://godoc.org/github.com/go-enry/go-license-detector/v4) [![Build Status](https://travis-ci.com/src-d/go-license-detector.svg?branch=master)](https://travis-ci.com/src-d/go-license-detector) [![Build status](https://ci.appveyor.com/api/projects/status/bxixhg99ewcgc5i5?svg=true)](https://ci.appveyor.com/project/vmarkovtsev/go-license-detector) [![codecov](https://codecov.io/github/src-d/go-license-detector/coverage.svg)](https://codecov.io/gh/src-d/go-license-detector) [![Go Report Card](https://goreportcard.com/badge/github.com/src-d/go-license-detector)](https://goreportcard.com/report/github.com/src-d/go-license-detector)
+# go-license-detector [![GoDoc](https://godoc.org/github.com/go-enry/go-license-detector/v4?status.svg)](https://pkg.go.dev/github.com/go-enry/go-license-detector/v4@v4.0.0/licensedb) [![Test](https://github.com/go-enry/go-license-detector/workflows/Test/badge.svg)](https://github.com/go-enry/go-license-detector/actions) [![Go Report Card](https://goreportcard.com/badge/github.com/go-enry/go-license-detector)](https://goreportcard.com/badge/github.com/go-enry/go-license-detector)
 
 Project license detector - a command line application and a library, written in Go.
 It scans the given directory for license files, normalizes and hashes them and outputs
@@ -18,18 +18,10 @@ The intended area of it's usage is data mining.
 ## Installation
 
 ```
-export GO111MODULE=on
-go mod download
-go build -v github.com/go-enry/go-license-detector/v4/cmd/license-detector
+go get github.com/go-enry/go-license-detector/v4/licensedb
 ```
 
-## Contributions
-
-...are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md) and [code of conduct](CODE_OF_CONDUCT.md).
-
-## License
-
-Apache 2.0, see [LICENSE.md](LICENSE.md).
+The CLI is available for download at the [release](https://github.com/go-enry/go-license-detector/releases/latest) page.
 
 ## Algorithm
 
@@ -60,7 +52,7 @@ Command line:
 
 ```bash
 license-detector /path/to/project
-license-detector https://github.com/src-d/go-git
+license-detector https://github.com/go-git/go-git
 ```
 
 Library (for a single license detection):
@@ -107,7 +99,7 @@ Comparison to other projects on that dataset:
 
 |Detector|Detection rate|Time to scan, sec|
 |:-------|:----------------------------------------:|:-----------------------------------------|
-|[go-license-detector](https://github.com/src-d/go-license-detector)| 99%  (897/902) | 13.5 |
+|[go-license-detector](https://github.com/go-enry/go-license-detector)| 99%  (897/902) | 13.5 |
 |[benbalter/licensee](https://github.com/benbalter/licensee)| 75%  (673/902) | 111 |
 |[google/licenseclassifier](https://github.com/google/licenseclassifier)| 76%  (682/902) | 907 |
 |[boyter/lc](https://github.com/boyter/lc)| 88%  (797/902) | 548 |
@@ -118,7 +110,7 @@ Comparison to other projects on that dataset:
 <pre><code>$ cd $(go env GOPATH)/src/github.com/go-enry/go-license-detector/v4/licensedb
 $ mkdir dataset && cd dataset
 $ unzip ../dataset.zip
-$ # src-d/go-license-detector
+$ # go-enry/go-license-detector
 $ time license-detector * \
   | grep -Pzo '\n[-0-9a-zA-Z]+\n\tno license' | grep -Pa '\tno ' | wc -l
 $ # benbalter/licensee
@@ -149,3 +141,10 @@ The SPDX licenses are included into the binary. To update them, run
 make bindata.go
 ```
 
+## Contributions
+
+...are welcome, see [CONTRIBUTING.md](CONTRIBUTING.md) and [code of conduct](CODE_OF_CONDUCT.md).
+
+## License
+
+Apache 2.0, see [LICENSE.md](LICENSE.md).
