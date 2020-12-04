@@ -91,8 +91,8 @@ func main() {
 
 ## Quality
 
-On the [dataset](dataset.zip) of ~1000 most starred repositories on GitHub as of early February 2018
-([list](dataset.projects.gz)), **99%** of the licenses are detected.
+On the [dataset](licensedb/dataset.zip) of ~1000 most starred repositories on GitHub as of early February 2018
+([list](licensedb/dataset.projects.gz)), **99%** of the licenses are detected.
 The analysis of detection failures is going in [FAILURES.md](FAILURES.md).
 
 Comparison to other projects on that dataset:
