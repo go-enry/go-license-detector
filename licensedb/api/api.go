@@ -5,4 +5,5 @@ package api
 type Match struct {
 	Files      map[string]float32
 	Confidence float32
+	File       string
 }

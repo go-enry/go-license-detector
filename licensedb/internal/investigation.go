@@ -77,6 +77,7 @@ func investigateCandidates(candidates map[string][]byte, f func(text []byte) map
 			match.Files[file] = sim
 			if sim > match.Confidence {
 				match.Confidence = sim
+				match.File = file
 			}
 			matches[name] = match
 		}

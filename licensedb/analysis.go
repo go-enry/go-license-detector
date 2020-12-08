@@ -43,6 +43,7 @@ type Result struct {
 type Match struct {
 	License    string  `json:"license"`
 	Confidence float32 `json:"confidence"`
+	File       string  `json:"file"`
 }
 
 func process(arg string) ([]Match, error) {
@@ -71,7 +72,7 @@ func process(arg string) ([]Match, error) {
 
 	var matches []Match
 	for k, v := range ls {
-		matches = append(matches, Match{k, v.Confidence})
+		matches = append(matches, Match{k, v.Confidence, v.File})
 	}
 	sort.Slice(matches, func(i, j int) bool { return matches[i].Confidence > matches[j].Confidence })
 	return matches, nil
