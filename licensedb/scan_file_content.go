@@ -1,4 +1,4 @@
-package scanfilecontent
+package licensedb
 
 import (
 	"github.com/go-enry/go-license-detector/v4/licensedb/internal"
