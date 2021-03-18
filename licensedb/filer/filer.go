@@ -108,7 +108,7 @@ type gitFiler struct {
 
 // FromGitURL returns a Filer that allows accessing all the files in a Git repository given its URL.
 func FromGitURL(url string) (Filer, error) {
-	repo, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{URL: url})
+	repo, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{URL: url, Depth: 1})
 	if err != nil {
 		return nil, errors.Wrapf(err, "could not clone repo from %s", url)
 	}
