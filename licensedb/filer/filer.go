@@ -106,7 +106,8 @@ type gitFiler struct {
 	root *object.Tree
 }
 
-// FromGitURL returns a Filer that allows accessing all the files in a Git repository given its URL.
+// FromGitURL returns a Filer that allows to access all the files in a Git repository's default branch given its URL.
+// It keeps a shallow single-branch clone of the repository in memory.
 func FromGitURL(url string) (Filer, error) {
 	repo, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{URL: url, Depth: 1})
 	if err != nil {
