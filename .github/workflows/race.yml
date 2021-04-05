@@ -1,0 +1,14 @@
+on: [push, pull_request]
+name: Race
+jobs:
+  race:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Install Go
+      uses: actions/setup-go@v1
+      with:
+        go-version: 1.14.x
+    - name: Checkout code
+      uses: actions/checkout@v2
+    - name: Test race
+      run: go test -v -race ./...
