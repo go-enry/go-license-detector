@@ -4,6 +4,7 @@ import (
 	"regexp"
 	"sort"
 	"strings"
+	"sync"
 
 	"github.com/jdkato/prose/chunk"
 	"github.com/jdkato/prose/tag"
@@ -18,7 +19,8 @@ var (
 	digitsRe            = regexp.MustCompile(`[0-9]+`)
 	disabledNamePartsRe = regexp.MustCompile(`clause|or|only|deprecated|later`)
 
-	tagger = tag.NewPerceptronTagger()
+	tagger    = tag.NewPerceptronTagger()
+	chunkLock sync.Mutex
 )
 
 // investigateReadmeFile uses NER to match license name mentions.
@@ -64,7 +66,8 @@ func investigateReadmeFile(
 	}
 	suspectedText := text[beginIndex:endIndex]
 	suspectedWords := tokenize.TextToWords(suspectedText)
-	for _, entity := range chunk.Chunk(tagger.Tag(suspectedWords), chunk.TreebankNamedEntities) {
+	chunks := readmeChunks(tagger.Tag(suspectedWords))
+	for _, entity := range chunks {
 		if garbageReadmeRe.MatchString(entity) {
 			continue
 		}
@@ -111,6 +114,12 @@ func investigateReadmeFile(
 		}
 	}
 	return candidates
+}
+
+func readmeChunks(tokens []tag.Token) []string {
+	chunkLock.Lock()
+	defer chunkLock.Unlock()
+	return chunk.Chunk(tokens, chunk.TreebankNamedEntities)
 }
 
 func splitLicenseName(name string) []substring {
