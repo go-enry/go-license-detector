@@ -53,3 +53,8 @@ func Detect(fs filer.Filer) (map[string]api.Match, error) {
 	}
 	return licenses, nil
 }
+
+// Preload database with licenses
+func Preload() {
+	internal.Preload()
+}

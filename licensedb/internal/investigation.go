@@ -161,3 +161,8 @@ func InvestigateReadmeText(text []byte, fs filer.Filer) map[string]float32 {
 func IsLicenseDirectory(fileName string) bool {
 	return licenseDirectoryRe.MatchString(strings.ToLower(fileName))
 }
+
+// Preload license database
+func Preload() {
+	_ = globalLicenseDatabase()
+}
