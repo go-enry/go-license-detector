@@ -54,7 +54,12 @@ func Detect(fs filer.Filer) (map[string]api.Match, error) {
 	return licenses, nil
 }
 
-// Preload database with licenses
+// Preload database with licenses - load internal database from assets into memory.
+// This method is an optimization for cases when the `Detect` method should return fast,
+// e.g. in HTTP web servers where connection timeout can occur during detect
+// `Preload` method could be called before server startup.
+// This method os optional and it's not required to be called, other APIs loads license database
+// lazily on first invocation.
 func Preload() {
 	internal.Preload()
 }
