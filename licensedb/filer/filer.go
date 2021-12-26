@@ -3,6 +3,7 @@ package filer
 import (
 	"archive/zip"
 	"bytes"
+	"io/fs"
 	"io/ioutil"
 	"os"
 	xpath "path"
@@ -37,10 +38,6 @@ type Filer interface {
 	PathsAreAlwaysSlash() bool
 }
 
-type localFiler struct {
-	root string
-}
-
 // FromDirectory returns a Filer that allows accessing over all the files contained in a directory.
 func FromDirectory(path string) (Filer, error) {
 	fi, err := os.Stat(path)
@@ -50,56 +47,46 @@ func FromDirectory(path string) (Filer, error) {
 	if !fi.IsDir() {
 		return nil, errors.New("not a directory")
 	}
-	path, _ = filepath.Abs(path)
-	return &localFiler{root: path}, nil
+	return FromFS(os.DirFS(path)), nil
 }
 
-func (filer *localFiler) resolvePath(path string) (string, error) {
-	path, err := filepath.Abs(filepath.Join(filer.root, path))
-	if err != nil {
-		return "", err
-	}
-	if !strings.HasPrefix(path, filer.root) {
-		return "", errors.New("path is out of scope")
-	}
-	return path, nil
+// FromFS returns a Filer that allows accessing all files in the given file system.
+func FromFS(fsys fs.FS) Filer {
+	return fsFiler{fsys}
 }
 
-func (filer *localFiler) ReadFile(path string) ([]byte, error) {
-	path, err := filer.resolvePath(path)
+type fsFiler struct{ fs fs.FS }
+
+func (fsys fsFiler) ReadFile(name string) ([]byte, error) {
+	buf, err := fs.ReadFile(fsys.fs, name)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read file %s", path)
+		return nil, errors.Wrapf(err, "cannot read file %s", name)
 	}
-	buffer, err := ioutil.ReadFile(path)
-	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read file %s", path)
-	}
-	return buffer, nil
+	return buf, nil
 }
 
-func (filer *localFiler) ReadDir(path string) ([]File, error) {
-	path, err := filer.resolvePath(path)
+func (fsys fsFiler) ReadDir(name string) ([]File, error) {
+	if name == "" {
+		name = "."
+	}
+	entries, err := fs.ReadDir(fsys.fs, name)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read directory %s", path)
+		return nil, errors.Wrapf(err, "cannot read directory %s", name)
 	}
-	files, err := ioutil.ReadDir(path)
-	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read directory %s", path)
+	files := make([]File, len(entries))
+	for i, e := range entries {
+		files[i] = File{
+			Name:  e.Name(),
+			IsDir: e.IsDir(),
+		}
 	}
-	result := make([]File, 0, len(files))
-	for _, file := range files {
-		result = append(result, File{
-			Name:  file.Name(),
-			IsDir: file.IsDir(),
-		})
-	}
-	return result, nil
+	return files, nil
 }
 
-func (filer *localFiler) Close() {}
+func (fsys fsFiler) Close() {}
 
-func (filer *localFiler) PathsAreAlwaysSlash() bool {
-	return false
+func (fsys fsFiler) PathsAreAlwaysSlash() bool {
+	return true
 }
 
 type gitFiler struct {
