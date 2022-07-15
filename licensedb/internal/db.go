@@ -270,6 +270,9 @@ func (db *database) queryLicenseAbstract(text string) map[string]float32 {
 	for i, titlePos := range titlePositions {
 		begPos := titlePos[0]
 		match := normalizedModerate[titlePos[0]:titlePos[1]]
+		if len(match) == 0 {
+			continue
+		}
 		if match[0] == '\n' {
 			match = match[1:]
 		}
