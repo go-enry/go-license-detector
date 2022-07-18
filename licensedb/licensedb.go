@@ -12,6 +12,9 @@ import (
 var (
 	// ErrNoLicenseFound is raised if no license files were found.
 	ErrNoLicenseFound = errors.New("no license file was found")
+	// ErrUnknownLicenseID is raised if license identifier is not known.
+	// Probably you need to upgrade version of the SPDX.
+	ErrUnknownLicenseID = errors.New("license id is not known")
 )
 
 // Detect returns the most probable reference licenses matched for the given
@@ -62,4 +65,28 @@ func Detect(fs filer.Filer) (map[string]api.Match, error) {
 // lazily on first invocation.
 func Preload() {
 	internal.Preload()
+}
+
+// LicenseURLs returns the list of the URLs for the given license identifier
+func LicenseURLs(id string) ([]string, error) {
+	urls, err := internal.LookupURLs(id)
+	if err != nil {
+		if errors.Is(err, internal.ErrUnknownLicenseID) {
+			return nil, ErrUnknownLicenseID
+		}
+		return nil, err
+	}
+	return urls, nil
+}
+
+// LicenseName returns the name for the given license identifier
+func LicenseName(id string) (string, error) {
+	name, err := internal.LookupName(id)
+	if err != nil {
+		if errors.Is(err, internal.ErrUnknownLicenseID) {
+			return "", ErrUnknownLicenseID
+		}
+		return "", err
+	}
+	return name, nil
 }

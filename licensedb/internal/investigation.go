@@ -166,3 +166,13 @@ func IsLicenseDirectory(fileName string) bool {
 func Preload() {
 	_ = globalLicenseDatabase()
 }
+
+// LookupURLs returns the list of URLs for the given license identifier
+func LookupURLs(id string) ([]string, error) {
+	return globalLicenseDatabase().URLs(id)
+}
+
+// LookupName returns the SPDX name for the given license identifier
+func LookupName(id string) (string, error) {
+	return globalLicenseDatabase().Name(id)
+}

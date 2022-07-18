@@ -32,13 +32,15 @@ func main() {
 			for _, url := range seeAlso.([]interface{}) {
 				id := data["licenseId"].(string)
 				strUrl := strings.TrimSpace(url.(string))
-				strUrl = strUrl[strings.Index(strUrl, "://"):] // ignore http/https
+				cutIndex := strings.Index(strUrl, "://")
+				schema := strUrl[:cutIndex]
+				strUrl = strUrl[cutIndex:] // ignore http/https
 				if strings.HasSuffix(strUrl, "/legalcode") && strings.HasPrefix(id, "CC") {
 					strUrl = strUrl[:len(strUrl)-10]
 				}
-				writer.Write([]string{id, strUrl})
+				writer.Write([]string{id, strUrl, schema})
 			}
 		}
 	}
-	writer.Write([]string{"MIT", ".mit-license.org"})
+	writer.Write([]string{"MIT", ".mit-license.org", "https"})
 }
