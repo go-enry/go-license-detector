@@ -23,7 +23,7 @@ require (
 	golang.org/x/net v0.0.0-20200301022130-244492dfa37a
 	golang.org/x/sys v0.0.0-20220818161305-2296e01440c6 // indirect
 	golang.org/x/text v0.3.6
-	gonum.org/v1/gonum v0.7.0
+	gonum.org/v1/gonum v0.8.2
 	gopkg.in/neurosnap/sentences.v1 v1.0.6 // indirect
 )
 
