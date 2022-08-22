@@ -6,7 +6,7 @@ require (
 	github.com/dgryski/go-metro v0.0.0-20180109044635-280f6062b5bc // indirect
 	github.com/dgryski/go-minhash v0.0.0-20170608043002-7fe510aff544 // indirect
 	github.com/dgryski/go-spooky v0.0.0-20170606183049-ed3d087f40e2 // indirect
-	github.com/ekzhu/minhash-lsh v0.0.0-20171225071031-5c06ee8586a1
+	github.com/ekzhu/minhash-lsh v0.0.0-20190924033628-faac2c6342f8
 	github.com/go-git/go-git/v5 v5.1.0
 	github.com/hhatto/gorst v0.0.0-20181029133204-ca9f730cac5b
 	github.com/jdkato/prose v1.1.0
