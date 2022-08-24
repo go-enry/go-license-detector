@@ -138,7 +138,7 @@ $ cat lid_*.csv | cut -d, -f1 | cut -d"'" -f 2 | grep / | cut -d/ -f2 | sort | u
 
 The SPDX licenses are included into the binary. To update them, run
 ```
-make bindata.go
+make licensedb/internal/assets/bindata.go
 ```
 
 ## Contributions
