@@ -72,10 +72,10 @@ func (wmh *WeightedMinHasher) MarshalBinary() (data []byte, err error) {
 	binary.LittleEndian.PutUint32(data[5:9], uint32(wmh.sampleSize))
 	offset := 9
 	writeFloat32Slice := func(arr []float32) {
-		header := *(*reflect.SliceHeader)(unsafe.Pointer(&arr))
+		header := (*reflect.SliceHeader)(unsafe.Pointer(&arr))
 		header.Len *= 4
 		header.Cap *= 4
-		buffer := *(*[]byte)(unsafe.Pointer(&header))
+		buffer := *(*[]byte)(unsafe.Pointer(header))
 		copy(data[offset:], buffer)
 		offset += len(buffer)
 	}
@@ -86,10 +86,10 @@ func (wmh *WeightedMinHasher) MarshalBinary() (data []byte, err error) {
 		writeFloat32Slice(arr)
 	}
 	for _, arr := range wmh.betas {
-		header := *(*reflect.SliceHeader)(unsafe.Pointer(&arr))
+		header := (*reflect.SliceHeader)(unsafe.Pointer(&arr))
 		header.Len *= 2
 		header.Cap *= 2
-		buffer := *(*[]byte)(unsafe.Pointer(&header))
+		buffer := *(*[]byte)(unsafe.Pointer(header))
 		copy(data[offset:], buffer)
 		offset += len(buffer)
 	}
@@ -111,10 +111,10 @@ func (wmh *WeightedMinHasher) UnmarshalBinary(data []byte) error {
 	wmh.lnCs = make([][]float32, wmh.sampleSize)
 	wmh.betas = make([][]uint16, wmh.sampleSize)
 	readFloat32Slice := func(dest []float32, src []byte) {
-		header := *(*reflect.SliceHeader)(unsafe.Pointer(&src))
+		header := (*reflect.SliceHeader)(unsafe.Pointer(&src))
 		header.Len /= 4
 		header.Cap /= 4
-		buffer := *(*[]float32)(unsafe.Pointer(&header))
+		buffer := *(*[]float32)(unsafe.Pointer(header))
 		copy(dest, buffer)
 	}
 	offset := 9
@@ -134,10 +134,10 @@ func (wmh *WeightedMinHasher) UnmarshalBinary(data []byte) error {
 		wmh.betas[i] = make([]uint16, wmh.dim)
 		nextOffset := offset + wmh.dim*2
 		slice := data[offset:nextOffset]
-		header := *(*reflect.SliceHeader)(unsafe.Pointer(&slice))
+		header := (*reflect.SliceHeader)(unsafe.Pointer(&slice))
 		header.Len /= 2
 		header.Cap /= 2
-		buffer := *(*[]uint16)(unsafe.Pointer(&header))
+		buffer := *(*[]uint16)(unsafe.Pointer(header))
 		copy(wmh.betas[i], buffer)
 		offset = nextOffset
 	}

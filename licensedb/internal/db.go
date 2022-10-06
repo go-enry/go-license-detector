@@ -4,6 +4,7 @@ import (
 	"archive/tar"
 	"bytes"
 	"encoding/csv"
+	"errors"
 	"fmt"
 	"index/suffixarray"
 	"io"
@@ -24,6 +25,10 @@ import (
 	"github.com/go-enry/go-license-detector/v4/licensedb/internal/wmh"
 )
 
+// ErrUnknownLicenseID is raised if license identifier is not known.
+// Probably you need to upgrade version of the SPDX.
+var ErrUnknownLicenseID = errors.New("license id is not known")
+
 var (
 	licenseReadmeMentionRe = regexp.MustCompile(
 		fmt.Sprintf("(?i)[^\\s]+/[^/\\s]*(%s)[^\\s]*",
@@ -39,8 +44,12 @@ type database struct {
 	licenseTexts map[string]string
 	// minimum license text length
 	minLicenseLength int
-	// official license URLs
-	urls map[string]string
+	// official license URL -> id
+	idByURL map[string]string
+	// id -> license URLs
+	urlsByID map[string][]string
+	// id -> license name
+	nameByID map[string]string
 	// all URLs joined
 	urlRe *regexp.Regexp
 	// first line of each license OR-ed - used to split
@@ -93,10 +102,12 @@ func loadUrls(db *database) {
 	if err != nil || len(records) == 0 {
 		log.Fatalf("failed to parse urls.csv from the assets: %v", err)
 	}
-	db.urls = map[string]string{}
+	db.idByURL = map[string]string{}
+	db.urlsByID = map[string][]string{}
 	urlReWriter := &bytes.Buffer{}
 	for i, record := range records {
-		db.urls[record[1]] = record[0]
+		db.idByURL[record[1]] = record[0]
+		db.urlsByID[record[0]] = append(db.urlsByID[record[0]], record[2]+record[1]) // schema+url
 		urlReWriter.Write([]byte(regexp.QuoteMeta(record[1])))
 		if i < len(records)-1 {
 			urlReWriter.WriteRune('|')
@@ -115,9 +126,11 @@ func loadNames(db *database) {
 	if err != nil || len(records) == 0 {
 		log.Fatalf("failed to parse names.csv from the assets: %v", err)
 	}
+	db.nameByID = map[string]string{}
 	db.nameSubstringSizes = map[string]int{}
 	db.nameSubstrings = map[string][]substring{}
 	for _, record := range records {
+		db.nameByID[record[0]] = record[1]
 		registerNameSubstrings(record[1], record[0], db.nameSubstringSizes, db.nameSubstrings)
 	}
 }
@@ -270,6 +283,9 @@ func (db *database) queryLicenseAbstract(text string) map[string]float32 {
 	for i, titlePos := range titlePositions {
 		begPos := titlePos[0]
 		match := normalizedModerate[titlePos[0]:titlePos[1]]
+		if len(match) == 0 {
+			continue
+		}
 		if match[0] == '\n' {
 			match = match[1:]
 		}
@@ -414,7 +430,7 @@ func (db *database) scanForURLs(text string) map[string]bool {
 	licenses := map[string]bool{}
 	for _, match := range urlMatches {
 		url := byteText[match[0]:match[1]]
-		licenses[db.urls[string(url)]] = true
+		licenses[db.idByURL[string(url)]] = true
 	}
 	return licenses
 }
@@ -450,6 +466,26 @@ func (db *database) QueryReadmeText(text string, fs filer.Filer) map[string]floa
 	}
 	db.addURLMatches(candidates, text)
 	return candidates
+}
+
+// URLs returns the list of the URLs for the given license identifier
+func (db *database) URLs(id string) ([]string, error) {
+	urls, found := db.urlsByID[id]
+	if !found {
+		return nil, ErrUnknownLicenseID
+	}
+	res := make([]string, len(urls))
+	copy(res, urls)
+	return urls, nil
+}
+
+// Name returns the SPDX name for the license identifier
+func (db *database) Name(id string) (string, error) {
+	name, found := db.nameByID[id]
+	if !found {
+		return "", ErrUnknownLicenseID
+	}
+	return name, nil
 }
 
 func tfidf(freq int, docfreq int, ndocs int) float32 {
