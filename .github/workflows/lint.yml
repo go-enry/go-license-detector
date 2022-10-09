@@ -10,7 +10,8 @@ jobs:
     - name: Run GolangCI-Lint 
       uses: golangci/golangci-lint-action@v2
       with:
-        version: v1.50.0
+        version: latest
+        only-new-issues: true
 
     - name: Test
       run: go test ./...
