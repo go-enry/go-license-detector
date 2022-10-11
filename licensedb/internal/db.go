@@ -234,7 +234,7 @@ func loadLicenses() *database {
 		db.tokens[token] = i
 		db.docfreqs[i] = docfreqs[token]
 	}
-	db.lsh = minhashlsh.NewMinhashLSH64(numHashes, similarityThreshold)
+	db.lsh = minhashlsh.NewMinhashLSH64(numHashes, similarityThreshold, len(tokenFreqs))
 	if db.debug {
 		k, l := db.lsh.Params()
 		log.Println("LSH:", k, l)
