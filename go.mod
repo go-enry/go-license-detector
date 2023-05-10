@@ -1,6 +1,6 @@
 module github.com/go-enry/go-license-detector/v4
 
-go 1.17
+go 1.18
 
 require (
 	github.com/ekzhu/minhash-lsh v0.0.0-20190924033628-faac2c6342f8
