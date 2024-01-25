@@ -149,6 +149,5 @@ will be extended to support those.
 * [IanLunn/Hover](https://github.com/IanLunn/Hover/blob/master/license.txt) - custom license, nothing can be done.
 * [xdissent/ievms](https://github.com/xdissent/ievms) - "none" license stated in the `README`.
 * [isocpp/CppCoreGuidelines](https://github.com/isocpp/CppCoreGuidelines/blob/master/LICENSE) - custom license.
-* [Modernizr/Modernizr](https://github.com/Modernizr/Modernizr) - license file is a joke, `README` mentions MIT.
 * [froala/design-blocks](https://github.com/froala/design-blocks/blob/dev/LICENSE) - FROALA OPEN WEB DESIGN LICENSE.
 * [Swordfish90/cool-retro-term](https://github.com/Swordfish90/cool-retro-term) - `gpl-3.0.txt` and `gpl-2.0.txt` files.
