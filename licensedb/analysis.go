@@ -74,6 +74,11 @@ func process(arg string) ([]Match, error) {
 	for k, v := range ls {
 		matches = append(matches, Match{k, v.Confidence, v.File})
 	}
-	sort.Slice(matches, func(i, j int) bool { return matches[i].Confidence > matches[j].Confidence })
+	sort.Slice(matches, func(i, j int) bool {
+		if matches[i].Confidence == matches[j].Confidence {
+			return matches[i].License < matches[j].License
+		}
+		return matches[i].Confidence > matches[j].Confidence
+	})
 	return matches, nil
 }
