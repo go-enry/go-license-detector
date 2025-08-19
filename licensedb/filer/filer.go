@@ -3,8 +3,10 @@ package filer
 import (
 	"archive/zip"
 	"bytes"
+	"errors"
+	"fmt"
+	"io"
 	"io/fs"
-	"io/ioutil"
 	"os"
 	xpath "path"
 	"path/filepath"
@@ -15,7 +17,6 @@ import (
 	"github.com/go-git/go-git/v5/plumbing/filemode"
 	"github.com/go-git/go-git/v5/plumbing/object"
 	"github.com/go-git/go-git/v5/storage/memory"
-	"github.com/pkg/errors"
 )
 
 // File represents a file in the virtual file system: every node is either a regular file
@@ -42,7 +43,7 @@ type Filer interface {
 func FromDirectory(path string) (Filer, error) {
 	fi, err := os.Stat(path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot create Filer from %s", path)
+		return nil, fmt.Errorf("cannot create Filer from %s: %w", path, err)
 	}
 	if !fi.IsDir() {
 		return nil, errors.New("not a directory")
@@ -60,7 +61,7 @@ type fsFiler struct{ fs fs.FS }
 func (fsys fsFiler) ReadFile(name string) ([]byte, error) {
 	buf, err := fs.ReadFile(fsys.fs, name)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read file %s", name)
+		return nil, fmt.Errorf("cannot read file %s: %w", name, err)
 	}
 	return buf, nil
 }
@@ -71,7 +72,7 @@ func (fsys fsFiler) ReadDir(name string) ([]File, error) {
 	}
 	entries, err := fs.ReadDir(fsys.fs, name)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read directory %s", name)
+		return nil, fmt.Errorf("cannot read directory %s: %w", name, err)
 	}
 	files := make([]File, len(entries))
 	for i, e := range entries {
@@ -98,7 +99,7 @@ type gitFiler struct {
 func FromGitURL(url string) (Filer, error) {
 	repo, err := git.Clone(memory.NewStorage(), nil, &git.CloneOptions{URL: url, Depth: 1})
 	if err != nil {
-		return nil, errors.Wrapf(err, "could not clone repo from %s", url)
+		return nil, fmt.Errorf("could not clone repo from %s: %w", url, err)
 	}
 	return FromGit(repo, "")
 }
@@ -113,15 +114,15 @@ func FromGit(repo *git.Repository, headRef plumbing.ReferenceName) (Filer, error
 		head, err = repo.Reference(headRef, true)
 	}
 	if err != nil {
-		return nil, errors.Wrap(err, "could not fetch HEAD from repo")
+		return nil, fmt.Errorf("could not fetch HEAD from repo: %w", err)
 	}
 	commit, err := repo.CommitObject(head.Hash())
 	if err != nil {
-		return nil, errors.Wrap(err, "could not fetch commit for HEAD")
+		return nil, fmt.Errorf("could not fetch commit for HEAD: %w", err)
 	}
 	tree, err := commit.Tree()
 	if err != nil {
-		return nil, errors.Wrap(err, "could not fetch root for HEAD commit")
+		return nil, fmt.Errorf("could not fetch root for HEAD commit: %w", err)
 	}
 	return &gitFiler{root: tree}, nil
 }
@@ -129,31 +130,31 @@ func FromGit(repo *git.Repository, headRef plumbing.ReferenceName) (Filer, error
 func (filer gitFiler) ReadFile(path string) ([]byte, error) {
 	entry, err := filer.root.FindEntry(path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot find file %s", path)
+		return nil, fmt.Errorf("cannot find file %s: %w", path, err)
 	}
 	if entry.Mode == filemode.Symlink {
 		file, err := filer.root.File(path)
 		if err != nil {
-			return nil, errors.Wrapf(err, "cannot find file %s", path)
+			return nil, fmt.Errorf("cannot find file %s: %w", path, err)
 		}
 		path, err = file.Contents()
 		if err != nil {
-			return nil, errors.Wrapf(err, "cannot read file %s", path)
+			return nil, fmt.Errorf("cannot read file %s: %w", path, err)
 		}
 	}
 	file, err := filer.root.File(path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read file %s", path)
+		return nil, fmt.Errorf("cannot read file %s: %w", path, err)
 	}
 	reader, err := file.Reader()
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read file %s", path)
+		return nil, fmt.Errorf("cannot read file %s: %w", path, err)
 	}
 	defer func() { err = reader.Close() }()
 
 	buf := new(bytes.Buffer)
 	if _, err = buf.ReadFrom(reader); err != nil {
-		return nil, errors.Wrapf(err, "cannot read file %s", path)
+		return nil, fmt.Errorf("cannot read file %s: %w", path, err)
 	}
 	return buf.Bytes(), err
 }
@@ -164,7 +165,7 @@ func (filer *gitFiler) ReadDir(path string) ([]File, error) {
 		var err error
 		tree, err = filer.root.Tree(path)
 		if err != nil {
-			return nil, errors.Wrapf(err, "cannot read directory %s", path)
+			return nil, fmt.Errorf("cannot read directory %s: %w", path, err)
 		}
 	} else {
 		tree = filer.root
@@ -209,7 +210,7 @@ type zipFiler struct {
 func FromZIP(path string) (Filer, error) {
 	arch, err := zip.OpenReader(path)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read ZIP archive %s", path)
+		return nil, fmt.Errorf("cannot read ZIP archive %s: %w", path, err)
 	}
 	root := &zipNode{children: map[string]*zipNode{}}
 	for _, f := range arch.File {
@@ -240,17 +241,17 @@ func (filer *zipFiler) ReadFile(path string) ([]byte, error) {
 		}
 		node = node.children[part]
 		if node == nil {
-			return nil, errors.Errorf("does not exist: %s", path)
+			return nil, fmt.Errorf("does not exist: %s", path)
 		}
 	}
 	reader, err := node.file.Open()
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot open %s", path)
+		return nil, fmt.Errorf("cannot open %s: %w", path, err)
 	}
 	defer reader.Close()
-	buffer, err := ioutil.ReadAll(reader)
+	buffer, err := io.ReadAll(reader)
 	if err != nil {
-		return nil, errors.Wrapf(err, "cannot read %s", path)
+		return nil, fmt.Errorf("cannot read %s: %w", path, err)
 	}
 	return buffer, nil
 }
@@ -264,11 +265,11 @@ func (filer *zipFiler) ReadDir(path string) ([]File, error) {
 		}
 		node = node.children[part]
 		if node == nil {
-			return nil, errors.Errorf("does not exist: %s", path)
+			return nil, fmt.Errorf("does not exist: %s", path)
 		}
 	}
 	if path != "" && !node.file.FileInfo().IsDir() {
-		return nil, errors.Errorf("not a directory: %s", path)
+		return nil, fmt.Errorf("not a directory: %s", path)
 	}
 	result := make([]File, 0, len(node.children))
 	for name, child := range node.children {
