@@ -7,7 +7,6 @@ require (
 	github.com/go-git/go-git/v5 v5.4.2
 	github.com/hhatto/gorst v0.0.0-20181029133204-ca9f730cac5b
 	github.com/jdkato/prose v1.2.1
-	github.com/pkg/errors v0.9.1
 	github.com/russross/blackfriday/v2 v2.1.0
 	github.com/sergi/go-diff v1.2.0
 	github.com/spf13/pflag v1.0.5
